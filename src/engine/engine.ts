@@ -6,6 +6,8 @@ import type {
 } from "pixi.js";
 import { Application, Assets, extensions, ResizePlugin } from "pixi.js";
 import "pixi.js/app";
+import { initDevtools } from '@pixi/devtools';
+
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - This is a dynamically generated file by AssetPack
@@ -40,6 +42,10 @@ export class CreationEngine extends Application {
     opts.resolution ??= getResolution();
 
     await super.init(opts);
+
+    if (import.meta.env.DEV) {
+      initDevtools({ app: this });
+    }
 
     // Append the application canvas to the document body
     document.getElementById("pixi-container")!.appendChild(this.canvas);
