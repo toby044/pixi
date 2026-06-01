@@ -1,7 +1,5 @@
 import { FancyButton } from "@pixi/ui";
 
-import { engine } from "../getEngine";
-
 import { Label } from "./Label";
 
 const defaultButtonOptions = {
@@ -55,16 +53,5 @@ export class Button extends FancyButton {
 
     this.width = opts.width;
     this.height = opts.height;
-
-    this.onDown.connect(this.handleDown.bind(this));
-    this.onHover.connect(this.handleHover.bind(this));
-  }
-
-  private handleHover() {
-    engine().audio.sfx.play("main/sounds/sfx-hover.wav");
-  }
-
-  private handleDown() {
-    engine().audio.sfx.play("main/sounds/sfx-press.wav");
   }
 }

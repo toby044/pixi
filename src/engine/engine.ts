@@ -1,4 +1,3 @@
-import { sound } from "@pixi/sound";
 import type {
   ApplicationOptions,
   DestroyOptions,
@@ -51,10 +50,8 @@ export class CreationEngine extends Application {
 
   protected visibilityChange = () => {
     if (document.hidden) {
-      sound.pauseAll();
       this.navigation.blur();
     } else {
-      sound.resumeAll();
       this.navigation.focus();
     }
   };
