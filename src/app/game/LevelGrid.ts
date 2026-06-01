@@ -73,4 +73,20 @@ export class LevelGrid {
   public worldToTile(x: number, y: number): { col: number; row: number } {
     return { col: Math.floor(x / TILE_SIZE), row: Math.floor(y / TILE_SIZE) };
   }
+  
+  public tileAtWorld(x: number, y: number): { col: number; row: number } | null {
+    const { col, row } = this.worldToTile(x, y);
+    return this.inBounds(col, row) ? { col, row } : null;
+  }
+
+  // paint a tile at a world point; returns the tile set, or null if off the grid
+  public setAtWorld(
+    x: number,
+    y: number,
+    type: TileType,
+  ): { col: number; row: number } | null {
+    const tile = this.tileAtWorld(x, y);
+    if (tile) this.set(tile.col, tile.row, type);
+    return tile;
+  }
 }

@@ -1,5 +1,5 @@
-import type { Ticker } from "pixi.js";
-import { Container, Graphics } from "pixi.js";
+import type { FederatedPointerEvent, Ticker } from "pixi.js";
+import { Container, Graphics, Rectangle } from "pixi.js";
 
 import { GameLayers } from "../../game/GameLayers";
 import { LevelGrid, TILE_SIZE, type TileType } from "../../game/LevelGrid";
@@ -18,6 +18,9 @@ export class GameScreen extends Container {
   private readonly layers: GameLayers;
   private readonly level: LevelGrid;
 
+  // outline drawn over the tile under the pointer
+  private readonly hover = new Graphics();
+
   constructor() {
     super();
 
@@ -28,7 +31,32 @@ export class GameScreen extends Container {
     this.level = new LevelGrid(20, 12);
     this.createSamplePath();
     this.renderLevel();
+
+    // single reusable tile outline, hidden until the pointer is over the board
+    this.hover.rect(0, 0, TILE_SIZE, TILE_SIZE).stroke({ width: 3, color: 0xffffff });
+    this.hover.visible = false;
+    this.layers.addToLayer("ui", this.hover);
+
+    // make the whole screen receive pointer moves (hitArea is set in resize)
+    this.eventMode = "static";
+    this.on("pointermove", this.onPointerMove);
   }
+
+  // highlight the tile under the pointer, or hide the outline when off the board
+  private onPointerMove = (e: FederatedPointerEvent): void => {
+    // convert into the scaled/positioned world container before mapping to a tile
+    const p = this.layers.world.toLocal(e.global);
+    const tile = this.level.tileAtWorld(p.x, p.y);
+
+    if (!tile) {
+      this.hover.visible = false;
+      return;
+    }
+
+    const { x, y } = this.level.tileToWorld(tile.col, tile.row);
+    this.hover.position.set(x, y);
+    this.hover.visible = true;
+  };
 
   // demo path
   private createSamplePath(): void {
@@ -66,6 +94,9 @@ export class GameScreen extends Container {
 
   // todo - make this into its own plugin or extension
   public resize(width: number, height: number): void {
+    // cover the full screen so pointermove fires anywhere
+    this.hitArea = new Rectangle(0, 0, width, height);
+
     const world = this.layers.world;
     const margin = 40;
     const scale = Math.min(
